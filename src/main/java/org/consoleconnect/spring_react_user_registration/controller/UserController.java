@@ -27,47 +27,47 @@ public class UserController {
     }
 
     @GetMapping
-    public ResponseEntity<List<User>> findUsers() {
+    public ResponseEntity<List<User>> findAll() {
 
         return ResponseEntity.ok(userService.findAll());
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<User> findUserById(@PathVariable Long id) {
+    public ResponseEntity<User> findById(@PathVariable Long id) {
 
         return ResponseEntity.ok(userService.findById(id));
     }
 
-    @PostMapping("/registerUser")
-    public ResponseEntity<User> registerUser(@RequestBody @Valid User user) {
+    @PostMapping
+    public ResponseEntity<User> create(@RequestBody @Valid User user) {
 
-        User createdUser = userService.save(user);
-        return ResponseEntity.status(HttpStatus.CREATED).body(createdUser);
+        User registeredUser = userService.save(user);
+        return ResponseEntity.status(HttpStatus.CREATED).body(registeredUser);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<User> updateUserById(@PathVariable Long id, @RequestBody @Valid User user) {
+    public ResponseEntity<User> update(@PathVariable Long id, @RequestBody @Valid User user) {
 
         User updatedUser = userService.updateById(id, user);
         return ResponseEntity.ok(updatedUser);
     }
 
     @PutMapping
-    public ResponseEntity<List<User>> updateUsers(@RequestBody List<User> users) {
+    public ResponseEntity<List<User>> updateMultiple(@RequestBody @Valid List<User> users) {
 
         List<User> updatedUsers = userService.updateByIds(users);
         return ResponseEntity.ok(updatedUsers);
     }
 
-    @DeleteMapping("/deleteUser/{id}")
-    public ResponseEntity<Void> deleteUserById(@PathVariable Long id) {
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> delete(@PathVariable Long id) {
 
         userService.softDeleteById(id);
         return ResponseEntity.noContent().build();
     }
 
-    @DeleteMapping("/deleteUsers")
-    public ResponseEntity<Void> deleteUsers(@RequestBody List<Long> ids) {
+    @DeleteMapping
+    public ResponseEntity<Void> deleteMultiple(@RequestBody List<Long> ids) {
 
         userService.softDeleteUsersByIds(ids);
         return ResponseEntity.noContent().build();

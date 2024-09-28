@@ -1,6 +1,5 @@
 package org.consoleconnect.spring_react_user_registration.service.impl;
 
-import jakarta.transaction.Transactional;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -9,12 +8,16 @@ import org.consoleconnect.spring_react_user_registration.exceptions.UserNotFound
 import org.consoleconnect.spring_react_user_registration.model.User;
 import org.consoleconnect.spring_react_user_registration.repository.UserRepository;
 import org.consoleconnect.spring_react_user_registration.service.UserService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class UserServiceImpl implements UserService {
 
+    private static final Logger logger = LoggerFactory.getLogger(UserServiceImpl.class);
     private final UserRepository userRepository;
     private final EmailService emailService;
 
@@ -27,31 +30,48 @@ public class UserServiceImpl implements UserService {
     @Override
     public List<User> findAll() {
 
-        return userRepository.findAll();
+        logger.debug("Fetching all users");
+        List<User> users = userRepository.findAll();
+        logger.info("Retrieved {} users", users.size());
+        return users;
     }
 
     @Override
     public User findById(Long id) {
 
-        return userRepository.findById(id).orElseThrow(() -> new UserNotFoundException(id));
+        logger.debug("Finding user with ID: {}", id);
+        return userRepository.findById(id)
+                .orElseThrow(() -> {
+                    logger.error("User not found with ID: {}", id);
+                    return new UserNotFoundException(id);
+                });
     }
 
     @Override
     public User save(User user) {
 
+        logger.debug("Saving user: {}", user);
         try {
-            User createdUser = userRepository.save(user);
-            emailService.sendWelcomeEmail(createdUser.getEmail(), createdUser.getFirstName());
-            return createdUser;
+            User registeredUser = userRepository.save(user);
+            emailService.sendWelcomeEmail(registeredUser.getEmail(), registeredUser.getFirstName());
+            logger.info("User registered successfully: {}", registeredUser);
+            return registeredUser;
         } catch (DataIntegrityViolationException e) {
+            logger.error("Unique constraint violation for email: {}", user.getEmail(), e);
             throw new UniqueConstraintViolationException();
         }
     }
 
     @Override
+    @Transactional
     public User updateById(Long id, User user) {
 
-        User managedUser = userRepository.findById(id).orElseThrow(() -> new UserNotFoundException(id));
+        logger.debug("Updating user with ID: {}", id);
+        User managedUser = userRepository.findById(id)
+                .orElseThrow(() -> {
+                    logger.error("User not found with ID: {}", id);
+                    return new UserNotFoundException(id);
+                });
 
         String oldEmail = managedUser.getEmail(); // Store the old email for comparison
 
@@ -71,21 +91,26 @@ public class UserServiceImpl implements UserService {
             if (!oldEmail.equals(managedUser.getEmail())) {
                 emailService.sendEmailUpdateNotification(oldEmail, managedUser.getEmail());
             }
+            logger.info("User updated successfully: {}", updatedUser);
             return updatedUser;
         } catch (DataIntegrityViolationException e) {
+            logger.error("Unique constraint violation for email: {}", user.getEmail(), e);
             throw new UniqueConstraintViolationException();
         }
     }
 
     @Override
+    @Transactional
     public List<User> updateByIds(List<User> usersToUpdate) {
 
+        logger.debug("Updating multiple users: {}", usersToUpdate);
         List<Long> ids = usersToUpdate.stream().map(User::getId).toList();
         List<User> existingUsers = userRepository.findAllById(ids);
         Set<Long> foundIds = existingUsers.stream().map(User::getId).collect(Collectors.toSet());
         List<Long> missingIds = ids.stream().filter(id -> !foundIds.contains(id)).toList();
 
         if (!missingIds.isEmpty()) {
+            logger.error("Users not found with IDs: {}", missingIds);
             throw new UserNotFoundException(missingIds);
         }
 
@@ -105,8 +130,11 @@ public class UserServiceImpl implements UserService {
                 }));
 
         try {
-            return userRepository.saveAll(existingUsers);
+            List<User> updatedUsers = userRepository.saveAll(existingUsers);
+            logger.info("Users updated successfully: {}", updatedUsers);
+            return updatedUsers;
         } catch (DataIntegrityViolationException e) {
+            logger.error("Unique constraint violation during batch update", e);
             throw new UniqueConstraintViolationException();
         }
     }
@@ -114,23 +142,29 @@ public class UserServiceImpl implements UserService {
     @Override
     public void softDeleteById(Long id) {
 
-        User user = userRepository.findById(id).orElseThrow(() -> new UserNotFoundException(id));
-        user.setIsDeleted(true);
+        logger.debug("Soft deleting user with ID: {}", id);
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new UserNotFoundException(id));
+        user.setIsDeactivated(true);
         userRepository.save(user);
+        logger.info("User with ID {} has been soft deleted", id);
     }
 
     @Override
     public void softDeleteUsersByIds(List<Long> ids) {
 
+        logger.debug("Soft deleting users with IDs: {}", ids);
         List<User> users = userRepository.findAllById(ids);
         List<Long> foundIds = users.stream().map(User::getId).toList();
         List<Long> missingIds = ids.stream().filter(id -> !foundIds.contains(id)).toList();
 
         if (!missingIds.isEmpty()) {
+            logger.error("Users not found with IDs: {}", missingIds);
             throw new UserNotFoundException(missingIds);
         }
 
-        users.forEach(user -> user.setIsDeleted(true));
+        users.forEach(user -> user.setIsDeactivated(true));
         userRepository.saveAll(users);
+        logger.info("Users with IDs {} have been soft deleted", ids);
     }
 }

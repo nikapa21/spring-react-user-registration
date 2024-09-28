@@ -10,10 +10,12 @@ import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 
 @Entity
 @Setter
 @Getter
+@ToString
 @Table(name = "users", uniqueConstraints = {@UniqueConstraint(columnNames = "email")})
 public class User {
 
@@ -29,5 +31,5 @@ public class User {
     @Email
     private String email;
 
-    private Boolean isDeleted = false;
+    private Boolean isDeactivated = false;
 }
