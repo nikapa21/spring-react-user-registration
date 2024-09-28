@@ -1,5 +1,6 @@
 package org.consoleconnect.spring_react_user_registration.service.impl;
 
+import jakarta.transaction.Transactional;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -15,10 +16,12 @@ import org.springframework.stereotype.Service;
 public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
+    private final EmailService emailService;
 
-    public UserServiceImpl(UserRepository userRepository) {
+    public UserServiceImpl(UserRepository userRepository, EmailService emailService) {
 
         this.userRepository = userRepository;
+        this.emailService = emailService;
     }
 
     @Override
@@ -37,7 +40,9 @@ public class UserServiceImpl implements UserService {
     public User save(User user) {
 
         try {
-            return userRepository.save(user);
+            User createdUser = userRepository.save(user);
+            emailService.sendWelcomeEmail(createdUser.getEmail(), createdUser.getFirstName());
+            return createdUser;
         } catch (DataIntegrityViolationException e) {
             throw new UniqueConstraintViolationException();
         }
@@ -48,12 +53,25 @@ public class UserServiceImpl implements UserService {
 
         User managedUser = userRepository.findById(id).orElseThrow(() -> new UserNotFoundException(id));
 
-        managedUser.setFirstName(user.getFirstName());
-        managedUser.setLastName(user.getLastName());
-        managedUser.setEmail(user.getEmail());
+        String oldEmail = managedUser.getEmail(); // Store the old email for comparison
+
+        if (user.getFirstName() != null) {
+            managedUser.setFirstName(user.getFirstName());
+        }
+        if (user.getLastName() != null) {
+            managedUser.setLastName(user.getLastName());
+        }
+        if (user.getEmail() != null) {
+            managedUser.setEmail(user.getEmail());
+        }
 
         try {
-            return userRepository.save(managedUser);
+            User updatedUser = userRepository.save(managedUser);
+            // Send an update email if the email address has changed
+            if (!oldEmail.equals(managedUser.getEmail())) {
+                emailService.sendEmailUpdateNotification(oldEmail, managedUser.getEmail());
+            }
+            return updatedUser;
         } catch (DataIntegrityViolationException e) {
             throw new UniqueConstraintViolationException();
         }
@@ -75,9 +93,15 @@ public class UserServiceImpl implements UserService {
                 .filter(user -> user.getId().equals(existingUser.getId()))
                 .findFirst()
                 .ifPresent(user -> {
+                    String oldEmail = existingUser.getEmail(); // Store the old email for comparison
                     existingUser.setFirstName(user.getFirstName());
                     existingUser.setLastName(user.getLastName());
                     existingUser.setEmail(user.getEmail());
+
+                    // Send email notification if the email has changed
+                    if (!oldEmail.equals(existingUser.getEmail())) {
+                        emailService.sendEmailUpdateNotification(oldEmail, existingUser.getEmail());
+                    }
                 }));
 
         try {

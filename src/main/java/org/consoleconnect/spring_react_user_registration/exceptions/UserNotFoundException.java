@@ -1,7 +1,7 @@
 package org.consoleconnect.spring_react_user_registration.exceptions;
 
-import static org.consoleconnect.spring_react_user_registration.util.ErrorMessages.USERS_NOT_FOUND;
-import static org.consoleconnect.spring_react_user_registration.util.ErrorMessages.USER_NOT_FOUND;
+import static org.consoleconnect.spring_react_user_registration.util.Messages.USERS_NOT_FOUND;
+import static org.consoleconnect.spring_react_user_registration.util.Messages.USER_NOT_FOUND;
 
 import java.util.List;
 

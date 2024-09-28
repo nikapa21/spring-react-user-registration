@@ -47,6 +47,12 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An unexpected error occurred.");
     }
 
+    @ExceptionHandler(EmailSendingException.class)
+    public ResponseEntity<Object> handleEmailSendingException(EmailSendingException exception, WebRequest request) {
+
+        return buildErrorResponse(exception, HttpStatus.INTERNAL_SERVER_ERROR, request, "/errors/email-sending-failed", null);
+    }
+
     private ResponseEntity<Object> buildErrorResponse(Exception exception, HttpStatus httpStatus, WebRequest request, String type, Map<String, String> errors) {
 
         Map<String, Object> body = new LinkedHashMap<>();
