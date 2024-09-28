@@ -25,9 +25,9 @@ public class MyCommandLineRunner implements CommandLineRunner {
         userService.save(user);
 
         User user2 = new User();
-        user2.setFirstName("George");
-        user2.setLastName("Pappas");
-        user2.setEmail("gpappas@gmail.com");
+        user2.setFirstName("John");
+        user2.setLastName("Doe");
+        user2.setEmail("johndoe@gmail.com");
         userService.save(user2);
     }
 }

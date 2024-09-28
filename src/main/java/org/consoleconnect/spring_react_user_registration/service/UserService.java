@@ -7,6 +7,15 @@ public interface UserService {
 
     User save(User user);
 
+    User updateById(Long id, User user);
+
+    List<User> updateByIds(List<User> usersToUpdate);
+
     List<User> findAll();
 
+    User findById(Long id);
+
+    void softDeleteById(Long id);
+
+    void softDeleteUsersByIds(List<Long> ids);
 }
