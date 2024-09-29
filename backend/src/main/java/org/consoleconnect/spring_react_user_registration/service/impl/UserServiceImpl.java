@@ -1,5 +1,7 @@
 package org.consoleconnect.spring_react_user_registration.service.impl;
 
+import static org.consoleconnect.spring_react_user_registration.util.Messages.USER_NOT_FOUND;
+
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -7,6 +9,7 @@ import org.consoleconnect.spring_react_user_registration.exceptions.UniqueConstr
 import org.consoleconnect.spring_react_user_registration.exceptions.UserNotFoundException;
 import org.consoleconnect.spring_react_user_registration.model.User;
 import org.consoleconnect.spring_react_user_registration.repository.UserRepository;
+import org.consoleconnect.spring_react_user_registration.service.EmailService;
 import org.consoleconnect.spring_react_user_registration.service.UserService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -42,7 +45,7 @@ public class UserServiceImpl implements UserService {
         logger.debug("Finding user with ID: {}", id);
         return userRepository.findById(id)
                 .orElseThrow(() -> {
-                    logger.error("User not found with ID: {}", id);
+                    logger.error(String.format(USER_NOT_FOUND, id));
                     return new UserNotFoundException(id);
                 });
     }
@@ -69,7 +72,7 @@ public class UserServiceImpl implements UserService {
         logger.debug("Updating user with ID: {}", id);
         User managedUser = userRepository.findById(id)
                 .orElseThrow(() -> {
-                    logger.error("User not found with ID: {}", id);
+                    logger.error(String.format(USER_NOT_FOUND, id));
                     return new UserNotFoundException(id);
                 });
 
@@ -140,14 +143,15 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void softDeleteById(Long id) {
+    public User deactivateById(Long id) {
 
-        logger.debug("Soft deleting user with ID: {}", id);
-        User user = userRepository.findById(id)
+        logger.debug("Deactivating user with ID: {}", id);
+        User managedUser = userRepository.findById(id)
                 .orElseThrow(() -> new UserNotFoundException(id));
-        user.setIsDeactivated(true);
-        userRepository.save(user);
-        logger.info("User with ID {} has been soft deleted", id);
+        managedUser.setIsDeactivated(true);
+        User updatedUser = userRepository.save(managedUser);
+        logger.info("User with ID {} has been deactivated", id);
+        return updatedUser;
     }
 
     @Override
@@ -166,5 +170,17 @@ public class UserServiceImpl implements UserService {
         users.forEach(user -> user.setIsDeactivated(true));
         userRepository.saveAll(users);
         logger.info("Users with IDs {} have been soft deleted", ids);
+    }
+
+    @Override
+    @Transactional
+    public void activateById(Long id) {
+
+        logger.debug("Activating user with ID: {}", id);
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new UserNotFoundException(id));
+        user.setIsDeactivated(false);
+        userRepository.save(user);
+        logger.info("User with ID {} has been activated", id);
     }
 }

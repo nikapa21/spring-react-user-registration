@@ -1,3 +1,4 @@
+import React from "react";
 import { NavLink } from "react-router-dom";
 
 export default function NavBar() {
@@ -17,12 +18,21 @@ export default function NavBar() {
                 aria-current="page"
                 to="/"
               >
-                List
+                User List
               </NavLink>
             </li>
             <li className="nav-item">
               <NavLink activeClassName="active" className="nav-link" to="/new">
-                Add
+                Add User
+              </NavLink>
+            </li>
+            <li className="nav-item">
+              <NavLink
+                activeClassName="active"
+                className="nav-link"
+                to="/emails"
+              >
+                Email List
               </NavLink>
             </li>
           </ul>

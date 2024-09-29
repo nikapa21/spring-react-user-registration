@@ -11,16 +11,17 @@ export const UserListProvider = ({ children }) => {
   };
 
   const addUser = (user) => {
-    setUsers([...users, user]);
+    setUsers((prevUsers) => [...prevUsers, user]);
   };
 
   const updateUser = (user) => {
     setUser(user);
   };
 
-  const removeUserById = (id) => {
-    const newUsers = users.filter((user) => user.id !== id);
-    setUsers(newUsers);
+  const activateUserById = (updatedUser) => {
+    setUsers((prevUsers) =>
+      prevUsers.map((user) => (user.id === updatedUser.id ? updatedUser : user))
+    );
   };
 
   return (
@@ -30,8 +31,8 @@ export const UserListProvider = ({ children }) => {
         user,
         updateUsers,
         updateUser,
-        removeUserById,
         addUser,
+        activateUserById,
       }}
     >
       {children}

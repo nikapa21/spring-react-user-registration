@@ -2,11 +2,12 @@ import axios from "axios";
 
 const baseURL = process.env.REACT_APP_API_BASE_URL;
 
-const apiUrl = `${baseURL}/api/users`;
+const usersApiUrl = `${baseURL}/api/users`;
+const emailsApiUrl = `${baseURL}/api/emails`;
 
 export const getUsers = async () => {
   try {
-    const response = await axios.get(apiUrl);
+    const response = await axios.get(usersApiUrl);
     return response.data;
   } catch (error) {
     throw error;
@@ -15,7 +16,7 @@ export const getUsers = async () => {
 
 export const createUser = async (user) => {
   try {
-    const response = await axios.post(apiUrl, user);
+    const response = await axios.post(usersApiUrl, user);
     return response.data;
   } catch (error) {
     throw error;
@@ -24,7 +25,7 @@ export const createUser = async (user) => {
 
 export const getUserById = async (id) => {
   try {
-    const response = await axios.get(`${apiUrl}/${id}`);
+    const response = await axios.get(`${usersApiUrl}/${id}`);
     return response.data;
   } catch (error) {
     throw error;
@@ -33,17 +34,33 @@ export const getUserById = async (id) => {
 
 export const updateUserById = async (id, user) => {
   try {
-    const response = await axios.put(`${apiUrl}/${id}`, user);
+    const response = await axios.put(`${usersApiUrl}/${id}`, user);
     return response.data;
   } catch (error) {
     throw error;
   }
 };
 
-export const deleteUserById = async (id) => {
+export const deactivateUserById = async (id) => {
   try {
-    const response = await axios.delete(`${apiUrl}/${id}`);
-    return response.data;
+    await axios.put(`${usersApiUrl}/${id}/deactivate`);
+  } catch (error) {
+    throw error;
+  }
+};
+
+export const activateUserById = async (id) => {
+  try {
+    await axios.put(`${usersApiUrl}/${id}/activate`);
+  } catch (error) {
+    throw error;
+  }
+};
+
+export const getEmails = async () => {
+  try {
+    const response = await axios.get(emailsApiUrl);
+    return response.data.items;
   } catch (error) {
     throw error;
   }

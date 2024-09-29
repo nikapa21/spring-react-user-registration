@@ -59,17 +59,24 @@ public class UserController {
         return ResponseEntity.ok(updatedUsers);
     }
 
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> delete(@PathVariable Long id) {
+    @PutMapping("/{id}/deactivate")
+    public ResponseEntity<User> deactivate(@PathVariable Long id) {
 
-        userService.softDeleteById(id);
-        return ResponseEntity.noContent().build();
+        User updatedUser = userService.deactivateById(id);
+        return ResponseEntity.ok(updatedUser);
     }
 
     @DeleteMapping
     public ResponseEntity<Void> deleteMultiple(@RequestBody List<Long> ids) {
 
         userService.softDeleteUsersByIds(ids);
+        return ResponseEntity.noContent().build();
+    }
+
+    @PutMapping("/{id}/activate")
+    public ResponseEntity<Void> activateUser(@PathVariable Long id) {
+
+        userService.activateById(id);
         return ResponseEntity.noContent().build();
     }
 }
