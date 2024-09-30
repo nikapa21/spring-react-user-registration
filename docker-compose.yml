@@ -25,6 +25,7 @@ services:
       - db
       - mailhog
     environment:
+      - SPRING_PROFILES_ACTIVE=prod
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=root
       - SPRING_DATASOURCE_URL=jdbc:postgresql://db:5432/postgres
@@ -43,5 +44,3 @@ services:
     container_name: react-app
     ports:
       - "3000:80"
-    volumes:
-      - ./frontend:/app
