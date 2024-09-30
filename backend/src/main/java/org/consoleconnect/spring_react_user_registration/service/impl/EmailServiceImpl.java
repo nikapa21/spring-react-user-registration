@@ -27,7 +27,7 @@ public class EmailServiceImpl implements EmailService {
     public EmailServiceImpl(JavaMailSender mailSender, WebClient.Builder webClientBuilder) {
 
         this.mailSender = mailSender;
-        this.webClient = webClientBuilder.baseUrl("http://localhost:8025/api").build();
+        this.webClient = webClientBuilder.baseUrl("http://mailhog:8025/api").build();
         logger.info("EmailServiceImpl initialized with JavaMailSender and WebClient.");
     }
 
