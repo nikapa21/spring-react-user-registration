@@ -113,7 +113,6 @@ public class UserServiceImpl implements UserService {
         List<Long> missingIds = ids.stream().filter(id -> !foundIds.contains(id)).toList();
 
         if (!missingIds.isEmpty()) {
-            logger.error("Users not found with IDs: {}", missingIds);
             throw new UserNotFoundException(missingIds);
         }
 
@@ -155,21 +154,21 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void softDeleteUsersByIds(List<Long> ids) {
+    public List<User> deactivateUsersByIds(List<Long> ids) {
 
-        logger.debug("Soft deleting users with IDs: {}", ids);
+        logger.debug("Deactivating users with IDs: {}", ids);
         List<User> users = userRepository.findAllById(ids);
         List<Long> foundIds = users.stream().map(User::getId).toList();
         List<Long> missingIds = ids.stream().filter(id -> !foundIds.contains(id)).toList();
 
         if (!missingIds.isEmpty()) {
-            logger.error("Users not found with IDs: {}", missingIds);
             throw new UserNotFoundException(missingIds);
         }
 
         users.forEach(user -> user.setIsDeactivated(true));
-        userRepository.saveAll(users);
-        logger.info("Users with IDs {} have been soft deleted", ids);
+        List<User> deactivatedUsers = userRepository.saveAll(users);
+        logger.info("Users with IDs {} have been deactivated", ids);
+        return deactivatedUsers;
     }
 
     @Override

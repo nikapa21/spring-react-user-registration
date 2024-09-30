@@ -17,7 +17,7 @@ public interface UserService {
 
     User deactivateById(Long id);
 
-    void softDeleteUsersByIds(List<Long> ids);
+    List<User> deactivateUsersByIds(List<Long> ids);
 
     void activateById(Long id);
 }

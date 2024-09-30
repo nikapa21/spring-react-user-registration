@@ -66,11 +66,11 @@ public class UserController {
         return ResponseEntity.ok(updatedUser);
     }
 
-    @DeleteMapping
-    public ResponseEntity<Void> deleteMultiple(@RequestBody List<Long> ids) {
+    @PutMapping("deactivate")
+    public ResponseEntity<List<User>> deactivateMultiple(@RequestBody List<Long> ids) {
 
-        userService.softDeleteUsersByIds(ids);
-        return ResponseEntity.noContent().build();
+        List<User> deactivatedUsers = userService.deactivateUsersByIds(ids);
+        return ResponseEntity.ok(deactivatedUsers);
     }
 
     @PutMapping("/{id}/activate")
