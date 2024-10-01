@@ -15,7 +15,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class UserServiceImpl implements UserService {
@@ -66,7 +65,6 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    @Transactional
     public User updateById(Long id, User user) {
 
         logger.debug("Updating user with ID: {}", id);
@@ -103,7 +101,6 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    @Transactional
     public List<User> updateByIds(List<User> usersToUpdate) {
 
         logger.debug("Updating multiple users: {}", usersToUpdate);
@@ -172,7 +169,6 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    @Transactional
     public void activateById(Long id) {
 
         logger.debug("Activating user with ID: {}", id);
