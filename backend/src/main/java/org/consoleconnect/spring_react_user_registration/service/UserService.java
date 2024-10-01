@@ -20,4 +20,6 @@ public interface UserService {
     List<User> deactivateUsersByIds(List<Long> ids);
 
     void activateById(Long id);
+
+    List<User> initializeData(List<User> users);
 }

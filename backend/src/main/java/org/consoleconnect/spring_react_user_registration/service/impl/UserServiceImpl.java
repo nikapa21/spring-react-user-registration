@@ -182,4 +182,13 @@ public class UserServiceImpl implements UserService {
         userRepository.save(user);
         logger.info("User with ID {} has been activated", id);
     }
+
+    @Override
+    public List<User> initializeData(List<User> users) {
+
+        logger.debug("Initializing data ");
+        List<User> initialUsers = userRepository.saveAll(users);
+        logger.info("Users have been initialized {}", initialUsers);
+        return initialUsers;
+    }
 }

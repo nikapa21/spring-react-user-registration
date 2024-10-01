@@ -28,6 +28,16 @@ public class UserController {
         this.userService = userService;
     }
 
+    @GetMapping("/initData")
+    @Operation(summary = "Initialize users", description = "Create two Users and insert in db")
+    public ResponseEntity<List<User>> initData() {
+
+        List<User> users = List.of(
+                new User(1L, "Nikos", "Karagkounis", "nikapa21@gmail.com", false),
+                new User(2L, "John", "Doe", "johndoe@gmail.com", false));
+        return ResponseEntity.ok(userService.initializeData(users));
+    }
+
     @GetMapping
     @Operation(summary = "Get all users", description = "Retrieve a list of all registered users")
     public ResponseEntity<List<User>> findAll() {
